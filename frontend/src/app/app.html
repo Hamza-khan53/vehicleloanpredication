@@ -1,0 +1,80 @@
+<div class="page">
+  <header class="hero">
+    <div class="eyebrow">MACHINE LEARNING PROJECT</div>
+    <h1>Vehicle Loan Risk Predictor</h1>
+    <p>Enter model features to request a prediction from the local Flask API.</p>
+  </header>
+
+  <div class="notice">
+    <strong>Demo limitation:</strong>
+    This interface uses numeric model inputs, including encoded fields.
+    Model preprocessing must be verified before predictions can be considered reliable.
+  </div>
+
+  <form class="panel" (ngSubmit)="submit()">
+    <div class="section-heading">
+      <div>
+        <h2>Model input features</h2>
+        <p>{{ fields.length }} required numeric features</p>
+      </div>
+      <span class="count">{{ fields.length }} fields</span>
+    </div>
+
+    <div class="grid">
+      @for (field of fields; track field.name) {
+        <label class="field">
+          <span>{{ field.label }}</span>
+          <input
+            type="number"
+            step="any"
+            [name]="field.name"
+            [(ngModel)]="values[field.name]"
+            required
+          />
+          <small>{{ field.name }}</small>
+        </label>
+      }
+    </div>
+
+    <button type="submit" [disabled]="loading || deployedStatic">
+      {{ loading ? 'Predicting...' : 'Run prediction' }}
+    </button>
+
+    @if (deployedStatic) {
+      <p class="help">
+        GitHub Pages cannot run Flask. Start the Flask backend locally for predictions.
+      </p>
+    }
+  </form>
+
+  @if (error) {
+    <div class="error" role="alert">
+      <strong>Request could not be completed</strong>
+      <p>{{ error }}</p>
+    </div>
+  }
+
+  @if (result) {
+    <section class="result">
+      <div class="eyebrow">MODEL RESPONSE</div>
+      <h2>Prediction result</h2>
+      <p class="prediction">{{ result.label ?? result.prediction }}</p>
+      <p>Prediction class: {{ result.prediction }}</p>
+
+      @if (result.probabilities) {
+        <h3>Class probabilities</h3>
+        <ul>
+          @for (probability of result.probabilities; track $index) {
+            <li>Class {{ $index }}: {{ (probability * 100).toFixed(2) }}%</li>
+          }
+        </ul>
+      }
+
+      <p class="disclaimer">
+        This is a model output, not a lending decision or a guarantee of loan default.
+      </p>
+    </section>
+  }
+
+  <footer>Vehicle Loan Default Prediction · Angular frontend · Flask API</footer>
+</div>
